@@ -517,9 +517,15 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
     }, 1400);
   }
 
-  function handleSelectEvidence(photoId: number) {
+  function handleOpenPhotoStory(photoId: number) {
     handleSelectPhoto(photoId);
     setActiveWorkspaceTab("read");
+  }
+
+  function handleShowOnMap(photoId: number) {
+    handleSelectPhoto(photoId);
+    setActiveWorkspaceTab("explore");
+    setActiveView("map");
   }
 
   function handleSelectTrip(tripId: number) {
@@ -554,7 +560,8 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
       busy={busy}
       isRefining={refineMode}
       onSelectPhoto={handleSelectPhoto}
-      onSelectEvidence={handleSelectEvidence}
+      onSelectEvidence={handleOpenPhotoStory}
+      onShowOnMap={handleShowOnMap}
       onUpdatePhoto={handleUpdatePhoto}
       onUpdateTripMemory={handleUpdateTripMemory}
       onSetCover={handleSetCover}
@@ -757,7 +764,7 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
                   photos={filteredPhotos}
                   selectedPhotoId={selectedPhoto?.id ?? null}
                   spotlightPhotoId={spotlightPhotoId}
-                  onSelectPhoto={handleSelectPhoto}
+                  onSelectPhoto={handleOpenPhotoStory}
                 />
               ) : null}
 
@@ -787,6 +794,7 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
                     photos={filteredPhotos}
                     selectedPhotoId={selectedPhoto?.id ?? null}
                     onSelectPhoto={handleSelectPhoto}
+                    onInspectPhoto={handleOpenPhotoStory}
                   />
                 </section>
               ) : null}
@@ -798,7 +806,7 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
                   spotlightPhotoId={spotlightPhotoId}
                   coverPhotoId={selectedTrip?.cover_photo_id ?? null}
                   isRefining={false}
-                  onSelectPhoto={handleSelectPhoto}
+                  onSelectPhoto={handleOpenPhotoStory}
                   onUpdatePhoto={handleUpdatePhoto}
                 />
               ) : null}
@@ -839,7 +847,7 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
                 photos={photos}
                 exportDisabled={selectedTripId === null || busy}
                 onAsk={handleAsk}
-                onSelectEvidence={handleSelectEvidence}
+                onSelectEvidence={handleOpenPhotoStory}
                 onExportMarkdown={handleExportMarkdown}
                 onExportZip={handleExportZip}
               />

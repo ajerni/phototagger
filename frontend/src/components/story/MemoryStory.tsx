@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Camera,
   CircleAlert,
+  MapPin,
   Pin,
   RotateCcw,
   Save,
@@ -23,6 +24,7 @@ type MemoryStoryProps = {
   isRefining: boolean;
   onSelectPhoto: (photoId: number) => void;
   onSelectEvidence: (photoId: number) => void;
+  onShowOnMap: (photoId: number) => void;
   onUpdatePhoto: (
     photoId: number,
     payload: {
@@ -52,6 +54,7 @@ export function MemoryStory({
   isRefining,
   onSelectPhoto,
   onSelectEvidence,
+  onShowOnMap,
   onUpdatePhoto,
   onUpdateTripMemory,
   onSetCover,
@@ -194,6 +197,7 @@ export function MemoryStory({
             disabled={busy}
             isRefining={isRefining}
             onSelectPhoto={onSelectPhoto}
+            onShowOnMap={onShowOnMap}
             onUpdatePhoto={onUpdatePhoto}
             onSetCover={onSetCover}
           />
@@ -251,6 +255,7 @@ function MemoryPhotoCard({
   disabled,
   isRefining,
   onSelectPhoto,
+  onShowOnMap,
   onUpdatePhoto,
   onSetCover
 }: {
@@ -262,12 +267,14 @@ function MemoryPhotoCard({
   disabled: boolean;
   isRefining: boolean;
   onSelectPhoto: (photoId: number) => void;
+  onShowOnMap?: (photoId: number) => void;
   onUpdatePhoto: MemoryStoryProps["onUpdatePhoto"];
   onSetCover: MemoryStoryProps["onSetCover"];
 }) {
   const analysis = photo.analysis;
   const mood = analysis?.user_mood || analysis?.mood;
   const isCover = coverPhotoId === photo.id;
+  const hasCoordinates = photo.latitude !== null && photo.longitude !== null;
 
   return (
     <article className={`memory-photo-card ${selected ? "selected" : ""} ${spotlight ? "spotlight" : ""}`}>
@@ -283,6 +290,17 @@ function MemoryPhotoCard({
         <h3>{analysis?.memory_caption || photo.filename}</h3>
         <p>{analysis?.scene_summary || "This photo is ready to be developed into a memory."}</p>
         <PhotoBadges isFavorite={photo.is_favorite} isCover={isCover} />
+        {onShowOnMap && hasCoordinates ? (
+          <div className="memory-location">
+            <span>
+              <MapPin size={14} aria-hidden="true" />
+              {formatCoordinates(photo.latitude!, photo.longitude!)}
+            </span>
+            <button type="button" onClick={() => onShowOnMap(photo.id)}>
+              Show on map
+            </button>
+          </div>
+        ) : null}
         {isRefining ? (
           <div className="memory-actions refine-reveal">
             <button
@@ -639,6 +657,12 @@ function TagGroup({ title, values }: { title: string; values: string[] }) {
       </div>
     </div>
   );
+}
+
+function formatCoordinates(latitude: number, longitude: number): string {
+  const lat = `${Math.abs(latitude).toFixed(4)}° ${latitude >= 0 ? "N" : "S"}`;
+  const lon = `${Math.abs(longitude).toFixed(4)}° ${longitude >= 0 ? "E" : "W"}`;
+  return `${lat}, ${lon}`;
 }
 
 function formatDate(value: string): string {
