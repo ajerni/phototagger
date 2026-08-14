@@ -24,36 +24,50 @@ def extract_exif(image_bytes: bytes) -> ExtractedExif:
         return ExtractedExif(None, None, None, {})
 
     raw: dict[str, Any] = {}
-    gps_payload: dict[str, Any] = {}
-    captured_at: datetime | None = None
 
     for tag_id, value in exif.items():
         tag_name = ExifTags.TAGS.get(tag_id, str(tag_id))
-        if tag_name == "GPSInfo":
-            gps_payload = _decode_gps(value)
-            raw[tag_name] = gps_payload
-            continue
+        if tag_name != "GPSInfo":
+            raw[tag_name] = _json_safe(value)
 
-        safe_value = _json_safe(value)
-        raw[tag_name] = safe_value
-        if tag_name in {"DateTimeOriginal", "DateTimeDigitized", "DateTime"}:
-            captured_at = captured_at or _parse_exif_datetime(str(safe_value))
+    # getexif() only yields IFD0, where GPSInfo/ExifOffset are integer file
+    # offsets rather than nested tags. The sub-IFDs must be read explicitly.
+    for tag_id, value in _read_ifd(exif, ExifTags.IFD.Exif).items():
+        tag_name = ExifTags.TAGS.get(tag_id, str(tag_id))
+        raw.setdefault(tag_name, _json_safe(value))
 
+    gps_payload = _decode_gps(_read_ifd(exif, ExifTags.IFD.GPSInfo))
+    if gps_payload:
+        raw["GPSInfo"] = gps_payload
+
+    captured_at = _pick_captured_at(raw)
     latitude, longitude = _gps_to_decimal(gps_payload)
     return ExtractedExif(captured_at, latitude, longitude, raw)
 
 
-def _decode_gps(value: Any) -> dict[str, Any]:
-    decoded: dict[str, Any] = {}
-    try:
-        items = value.items()
-    except AttributeError:
-        return decoded
+def _pick_captured_at(raw: dict[str, Any]) -> datetime | None:
+    for tag_name in ("DateTimeOriginal", "DateTimeDigitized", "DateTime"):
+        value = raw.get(tag_name)
+        if value is None:
+            continue
+        parsed = _parse_exif_datetime(str(value))
+        if parsed is not None:
+            return parsed
+    return None
 
-    for gps_id, gps_value in items:
-        gps_name = ExifTags.GPSTAGS.get(gps_id, str(gps_id))
-        decoded[gps_name] = _json_safe(gps_value)
-    return decoded
+
+def _read_ifd(exif: Any, ifd_tag: int) -> dict[Any, Any]:
+    try:
+        return dict(exif.get_ifd(ifd_tag))
+    except Exception:
+        return {}
+
+
+def _decode_gps(gps_ifd: dict[Any, Any]) -> dict[str, Any]:
+    return {
+        ExifTags.GPSTAGS.get(gps_id, str(gps_id)): _json_safe(gps_value)
+        for gps_id, gps_value in gps_ifd.items()
+    }
 
 
 def _parse_exif_datetime(value: str) -> datetime | None:

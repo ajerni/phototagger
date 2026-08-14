@@ -408,30 +408,38 @@ p {
   padding-right: 2px;
 }
 
-.trip-list button {
+.trip-list-item {
   align-items: center;
-  background: transparent;
-  border: 0;
   border-left: 2px solid transparent;
-  color: inherit;
-  display: grid;
-  gap: 10px;
-  grid-template-columns: 12px minmax(0, 1fr);
-  padding: 10px 8px;
-  text-align: left;
+  display: flex;
+  position: relative;
   transition:
     background 160ms ease,
     border-color 160ms ease;
-  width: 100%;
 }
 
-.trip-list button:hover {
+.trip-list-item:hover {
   background: rgba(238, 241, 240, 0.68);
 }
 
-.trip-list button.selected {
+.trip-list-item.selected {
   background: rgba(238, 241, 240, 0.9);
   border-color: var(--accent);
+}
+
+.trip-select-btn {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  flex: 1;
+  gap: 10px;
+  grid-template-columns: 12px minmax(0, 1fr);
+  min-width: 0;
+  padding: 10px 8px;
+  text-align: left;
 }
 
 .trip-list strong,
@@ -454,9 +462,58 @@ p {
   width: 8px;
 }
 
-.trip-list button.selected .trip-select-dot {
+.trip-list-item.selected .trip-select-dot {
   background: var(--accent);
   box-shadow: 0 0 0 4px rgba(143, 63, 45, 0.14);
+}
+
+.trip-actions {
+  align-items: center;
+  display: none;
+  gap: 2px;
+  padding-right: 6px;
+}
+
+.trip-list-item:hover .trip-actions {
+  display: flex;
+}
+
+.trip-action-btn {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: #9a9e97;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  padding: 4px;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.trip-action-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+  color: var(--text);
+}
+
+.trip-action-btn--delete:hover {
+  color: #b93a2a;
+}
+
+.trip-rename-input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1.5px solid var(--accent);
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 8px 10px;
+  outline: none;
+  padding: 2px 4px;
+  width: calc(100% - 20px);
 }
 
 .upload-panel {

@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { RotateCcw, Save, Search, Trash2, Plus } from "lucide-react";
+import { Pencil, RotateCcw, Save, Search, Trash2, Plus } from "lucide-react";
 import {
   analyzeTrip,
   askTrip,
@@ -63,6 +63,8 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
   const [importResult, setImportResult] = useState<PhotoImportResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [renamingTripId, setRenamingTripId] = useState<number | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const [filters, setFilters] = useState<Record<FilterKey, boolean>>({
     favorites: false,
     mapped: false,
@@ -422,6 +424,45 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
     });
   }
 
+  function startRename(trip: Trip) {
+    setRenamingTripId(trip.id);
+    setRenameValue(trip.title);
+  }
+
+  async function commitRename() {
+    const id = renamingTripId;
+    const trimmed = renameValue.trim();
+    setRenamingTripId(null);
+    if (id === null || !trimmed) return;
+    await runAction(async () => {
+      const updated = await updateTrip(id, { title: trimmed });
+      setTrips((current) =>
+        current.map((t) => (t.id === updated.id ? { ...t, title: updated.title } : t))
+      );
+      if (selectedTripDetail?.id === updated.id) {
+        setSelectedTripDetail({ ...selectedTripDetail, title: updated.title });
+      }
+    });
+  }
+
+  async function handleDeleteTripById(id: number, tripTitle: string) {
+    const ok = window.confirm(
+      `Delete "${tripTitle}"? This removes its database records and uploaded local files.`
+    );
+    if (!ok) return;
+    await runAction(async () => {
+      await deleteTrip(id);
+      if (selectedTripId === id) {
+        setSelectedTripDetail(null);
+        setSelectedTripId(null);
+        setSelectedPhotoId(null);
+        setAskResponse(null);
+        setActiveJob(null);
+      }
+      await loadTrips();
+    });
+  }
+
   async function handleExportMarkdown() {
     if (selectedTripId === null) {
       return;
@@ -576,18 +617,56 @@ export function TripWorkspace({ health, healthError }: TripWorkspaceProps) {
               <p className="empty-copy">Create a trip to begin.</p>
             ) : (
               trips.map((trip) => (
-                <button
+                <div
                   key={trip.id}
-                  className={trip.id === selectedTripId ? "selected" : ""}
-                  onClick={() => handleSelectTrip(trip.id)}
-                  type="button"
+                  className={`trip-list-item${trip.id === selectedTripId ? " selected" : ""}`}
                 >
-                  <span className="trip-select-dot" aria-hidden="true" />
-                  <span>
-                    <strong>{trip.title}</strong>
-                    <em>{trip.description || "Private photo memory"}</em>
-                  </span>
-                </button>
+                  {renamingTripId === trip.id ? (
+                    <input
+                      autoFocus
+                      className="trip-rename-input"
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") void commitRename();
+                        if (e.key === "Escape") setRenamingTripId(null);
+                      }}
+                      onBlur={() => void commitRename()}
+                    />
+                  ) : (
+                    <>
+                      <button
+                        className="trip-select-btn"
+                        onClick={() => handleSelectTrip(trip.id)}
+                        type="button"
+                      >
+                        <span className="trip-select-dot" aria-hidden="true" />
+                        <span>
+                          <strong>{trip.title}</strong>
+                          <em>{trip.description || "Private photo memory"}</em>
+                        </span>
+                      </button>
+                      <div className="trip-actions">
+                        <button
+                          type="button"
+                          className="trip-action-btn"
+                          title="Rename trip"
+                          onClick={() => startRename(trip)}
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          className="trip-action-btn trip-action-btn--delete"
+                          title="Delete trip"
+                          onClick={() => void handleDeleteTripById(trip.id, trip.title)}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               ))
             )}
           </div>

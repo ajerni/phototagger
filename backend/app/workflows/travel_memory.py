@@ -11,7 +11,7 @@ from sqlmodel import Session, select
 from backend.app.core.config import Settings, get_settings
 from backend.app.db.models import Photo, PhotoAnalysis, Trip, TripMemory, utc_now
 from backend.app.schemas.ask import AskResponse
-from backend.app.workflows.client import GemmaClient, OllamaGemmaClient
+from backend.app.workflows.client import GemmaClient, OpenRouterClient
 from backend.app.workflows.prompts import (
     photo_analysis_prompt,
     photo_analysis_system_instruction,
@@ -58,7 +58,7 @@ def analyze_photo_memory(
     client: GemmaClient | None = None,
 ) -> PhotoAnalysis:
     settings = get_settings()
-    client = client or OllamaGemmaClient(settings)
+    client = client or OpenRouterClient(settings)
     photo = _get_photo(session, photo_id)
     image_payload = _load_image_payload(photo, settings)
     photo_metadata = _photo_context(photo).model_dump()
@@ -87,7 +87,7 @@ def synthesize_trip_memory(
     client: GemmaClient | None = None,
 ) -> TripMemory:
     settings = get_settings()
-    client = client or OllamaGemmaClient(settings)
+    client = client or OpenRouterClient(settings)
     trip = _get_trip(session, trip_id)
     photo_contexts = _analyzed_photo_contexts(session, trip_id)
     if not photo_contexts:
@@ -120,7 +120,7 @@ def answer_trip_question_with_gemma(
     client: GemmaClient | None = None,
 ) -> AskResponse:
     settings = get_settings()
-    client = client or OllamaGemmaClient(settings)
+    client = client or OpenRouterClient(settings)
     trip = _get_trip(session, trip_id)
     photo_contexts = _analyzed_photo_contexts(session, trip_id)
     if not photo_contexts:
@@ -164,7 +164,7 @@ def run_trip_memory_workflow(
     mode: str = "all",
     should_cancel: Callable[[], bool] | None = None,
 ) -> TripWorkflowResult:
-    client = client or OllamaGemmaClient(get_settings())
+    client = client or OpenRouterClient(get_settings())
     _get_trip(session, trip_id)
     all_photos = session.exec(
         select(Photo).where(Photo.trip_id == trip_id).order_by(Photo.created_at)

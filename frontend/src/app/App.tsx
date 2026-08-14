@@ -28,8 +28,8 @@ export function App() {
             <MapPinned size={24} aria-hidden="true" />
           </span>
           <div>
-            <h1>Private Memory Map</h1>
-            <p>Local travel memories with Gemma vision</p>
+            <h1>Travel memories</h1>
+            <p>AI photo descriptor by Andi.</p>
           </div>
         </div>
 
@@ -48,7 +48,7 @@ export function App() {
               <>
                 <Cpu size={16} aria-hidden="true" />
                 <span>
-                  {modelReady ? `${health.gemma_model} ready` : "Model not ready"}
+                  {modelReady ? `${health.model} ready` : "Model not ready"}
                 </span>
               </>
             ) : (

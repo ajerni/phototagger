@@ -12,7 +12,7 @@ from backend.app.db.models import AnalysisJob, Photo, Trip, utc_now
 from backend.app.db.session import get_engine, get_session
 from backend.app.schemas.analysis import AnalyzeTripRequest, PhotoAnalysisRead
 from backend.app.schemas.job import AnalysisJobRead
-from backend.app.workflows.client import GemmaClient, OllamaGemmaClient
+from backend.app.workflows.client import GemmaClient, OpenRouterClient
 from backend.app.workflows.travel_memory import (
     WorkflowError,
     WorkflowCanceled,
@@ -26,7 +26,7 @@ ClientFactory = Callable[[], GemmaClient]
 
 
 def get_gemma_client() -> GemmaClient:
-    return OllamaGemmaClient(get_settings())
+    return OpenRouterClient(get_settings())
 
 
 @router.post("/photos/{photo_id}/analyze", response_model=PhotoAnalysisRead)

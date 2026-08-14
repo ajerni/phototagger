@@ -200,7 +200,7 @@ export function MemoryCompanion({
             <dd>
               {health
                 ? health.model_available
-                  ? health.gemma_model
+                  ? health.model
                   : health.model_status
                 : "Offline"}
             </dd>

@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +11,18 @@ class Settings(BaseSettings):
     app_name: str = "Private Memory Map"
     api_prefix: str = "/api"
     gemma_model: str = "gemma4:e4b-128k"
+    openrouter_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("OPENROUTER_API_KEY", "PMM_OPENROUTER_API_KEY"),
+    )
+    openrouter_base_url: str = Field(
+        default="https://openrouter.ai/api/v1",
+        validation_alias=AliasChoices("OPENROUTER_BASE_URL", "PMM_OPENROUTER_BASE_URL"),
+    )
+    openrouter_model: str = Field(
+        default="google/gemini-3.7-flash",
+        validation_alias=AliasChoices("OPENROUTER_MODEL", "PMM_OPENROUTER_MODEL"),
+    )
     database_url: str = "sqlite:///backend/local_data/private_memory_map.db"
     upload_dir: Path = Path("backend/local_data/uploads")
     max_upload_mb: int = 25

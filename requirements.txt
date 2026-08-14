@@ -5,6 +5,5 @@ pydantic
 pydantic-settings
 python-multipart
 pillow
-ollama
 pytest
 httpx

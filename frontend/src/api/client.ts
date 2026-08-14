@@ -4,10 +4,9 @@ export const API_BASE_URL =
 export type HealthResponse = {
   status: string;
   app: string;
-  gemma_model: string;
-  ollama_available: boolean;
+  model: string;
   model_available: boolean;
-  model_status: "ready" | "ollama_unavailable" | "model_missing" | string;
+  model_status: "ready" | "api_key_missing" | "unreachable" | string;
   model_error: string | null;
   database: string;
   storage: string;
