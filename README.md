@@ -118,16 +118,16 @@ backend tests use fake Gemma clients.
 
 Create and activate the Python environment:
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
 Install frontend dependencies:
 
-```powershell
+```bash
 cd frontend
 npm install
 cd ..
@@ -137,13 +137,13 @@ cd ..
 
 Start the backend:
 
-```powershell
-.\.venv\Scripts\python -m uvicorn backend.app.main:app --reload --port 8000
+```bash
+.venv/bin/python -m uvicorn backend.app.main:app --reload --port 8000
 ```
 
 Start the frontend:
 
-```powershell
+```bash
 cd frontend
 npm run dev
 ```
@@ -177,13 +177,13 @@ VITE_API_BASE_URL=http://localhost:8000
 
 Backend:
 
-```powershell
-.\.venv\Scripts\python -m pytest backend/tests
+```bash
+.venv/bin/python -m pytest backend/tests
 ```
 
 Frontend:
 
-```powershell
+```bash
 cd frontend
 npm run build
 ```
@@ -192,14 +192,14 @@ npm run build
 
 Reset the local SQLite database and uploaded files:
 
-```powershell
-.\.venv\Scripts\python scripts\reset_local_data.py --yes
+```bash
+.venv/bin/python scripts/reset_local_data.py --yes
 ```
 
 Run the real Gemma workflow against one image:
 
-```powershell
-.\.venv\Scripts\python scripts\smoke_test_real_workflow.py C:\path\to\travel-photo.jpg
+```bash
+.venv/bin/python scripts/smoke_test_real_workflow.py /path/to/travel-photo.jpg
 ```
 
 The smoke script depends on local model availability and hardware speed, so it
@@ -207,8 +207,8 @@ is not part of automated tests.
 
 Seed a small synthetic trip without calling Gemma:
 
-```powershell
-.\.venv\Scripts\python scripts\seed_demo_trip.py
+```bash
+.venv/bin/python scripts/seed_demo_trip.py
 ```
 
 Use `--replace` to recreate the seeded demo trip.
