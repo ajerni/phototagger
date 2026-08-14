@@ -1,6 +1,6 @@
 # Private Memory Map
 
-Private Memory Map is a local-first travel memory app. It helps you turn a
+Travel memory is a local-first travel memory app. It helps you turn a
 folder of trip photos into a private, searchable memory workspace with a map,
 timeline, photo memories, trip synthesis, and grounded Q&A.
 
